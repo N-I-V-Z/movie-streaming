@@ -9,41 +9,60 @@ interface VideoPlayerProps {
   onReady?: (player: any) => void;
 }
 
-export const VideoPlayer = (props: VideoPlayerProps) => {
+export const VideoPlayer = ({ options, onReady }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
-  const { options, onReady } = props;
 
   useEffect(() => {
-    // Chỉ khởi tạo khi videoRef tồn tại
+    if (typeof window === 'undefined' || !videoRef.current) return;
+
     if (!playerRef.current) {
       const videoElement = document.createElement('video-js');
       videoElement.classList.add('vjs-big-play-centered');
-      videoRef.current?.appendChild(videoElement);
+      
+      // Đảm bảo video và ảnh poster bên trong luôn ở chế độ contain (hiện khoảng đen)
+      videoElement.style.width = '100%';
+      videoElement.style.height = '100%';
+      
+      videoRef.current.appendChild(videoElement);
 
-      const player = (playerRef.current = videojs(videoElement, options, () => {
+      const player = (playerRef.current = videojs(videoElement, {
+        ...options,
+        fill: true,
+        fluid: false,
+      }, () => {
         onReady && onReady(player);
       }));
     } else {
       const player = playerRef.current;
       player.autoplay(options.autoplay);
       player.src(options.sources);
+      if (options.poster) player.poster(options.poster);
     }
-  }, [options, videoRef, onReady]);
+  }, [options, videoRef]);
 
-  // Hủy player khi component unmount
   useEffect(() => {
-    const player = playerRef.current;
     return () => {
+      const player = playerRef.current;
       if (player && !player.isDisposed()) {
         player.dispose();
         playerRef.current = null;
       }
     };
-  }, [playerRef]);
+  }, []);
 
   return (
-    <div data-vjs-player className="w-full aspect-video rounded-xl overflow-hidden shadow-2xl">
+    <div data-vjs-player className="w-full h-full bg-black flex items-center justify-center">
+      {/* Thêm style để ép ảnh poster hiển thị ở chế độ contain */}
+      <style jsx global>{`
+        .vjs-poster {
+          background-size: contain !important;
+          background-color: black !important;
+        }
+        .video-js video {
+          object-fit: contain !important;
+        }
+      `}</style>
       <div ref={videoRef} className="w-full h-full" />
     </div>
   );

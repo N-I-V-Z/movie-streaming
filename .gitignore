@@ -79,6 +79,8 @@ ScaffoldingReadMe.txt
 # We ignore the actual movie files and temp uploads
 movie-streaming-api/MovieStreaming.Api/wwwroot/movies/*
 !movie-streaming-api/MovieStreaming.Api/wwwroot/movies/.gitkeep
+movie-streaming-api/MovieStreaming.Api/wwwroot/posters/*
+!movie-streaming-api/MovieStreaming.Api/wwwroot/posters/.gitkeep
 movie-streaming-api/MovieStreaming.Api/TempUploads/*
 !movie-streaming-api/MovieStreaming.Api/TempUploads/.gitkeep
 

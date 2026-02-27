@@ -57,7 +57,11 @@ Hệ thống được chia thành hai phần chính:
   cd movie-streaming-client
   npm install
   ```
-- **Cấu hình API:** Đảm bảo `BASE_URL` trong `src/services/api.ts` trỏ đúng địa chỉ Backend.
+- **Cấu hình Biến môi trường:**
+  Tạo file `.env.local` trong thư mục `movie-streaming-client` (có thể copy từ `.env.example`):
+  ```env
+  NEXT_PUBLIC_API_URL=http://localhost:5041
+  ```
 - **Chạy Client:**
   ```bash
   npm run dev

@@ -44,11 +44,11 @@ namespace MovieStreaming.Api.Controllers
         }
 
         /// <summary>
-        /// Tải lên video mới và tự động chuyển đổi sang định dạng HLS (Streaming)
+        /// Tải lên phim mới (Bao gồm Video, Tiêu đề, Mô tả và Poster đại diện)
         /// </summary>
-        /// <param name="dto">Dữ liệu phim và file video (Hỗ trợ lên đến 1GB)</param>
+        /// <param name="dto">Dữ liệu phim (VideoFile, Title, Description, PosterFile)</param>
         /// <param name="ct">Token hủy tác vụ</param>
-        /// <returns>Thông tin phim sau khi đã xử lý xong video</returns>
+        /// <returns>Thông tin phim sau khi đã xử lý video sang HLS thành công</returns>
         [HttpPost("upload")]
         public async Task<IActionResult> Upload([FromForm] MovieUploadDto dto, CancellationToken ct)
         {
@@ -72,7 +72,7 @@ namespace MovieStreaming.Api.Controllers
         }
 
         /// <summary>
-        /// Xóa phim và toàn bộ tài nguyên liên quan (Video HLS, Poster)
+        /// Xóa phim và toàn bộ dữ liệu (Video, Poster) liên quan
         /// </summary>
         /// <param name="id">Mã phim cần xóa</param>
         /// <returns>Thông báo kết quả xóa</returns>
@@ -81,21 +81,6 @@ namespace MovieStreaming.Api.Controllers
         {
             await _movieService.DeleteAsync(id);
             return OkResponse<object?>(null, "Đã xóa phim và toàn bộ dữ liệu liên quan.");
-        }
-
-        /// <summary>
-        /// Tải lên hoặc cập nhật ảnh đại diện (Poster) cho phim
-        /// </summary>
-        /// <param name="id">Mã phim</param>
-        /// <param name="file">File ảnh (jpg, png...)</param>
-        /// <returns>Thông tin phim kèm URL Poster mới</returns>
-        [HttpPost("{id}/poster")]
-        public async Task<IActionResult> UploadPoster(int id, IFormFile file)
-        {
-            if (file == null || file.Length == 0) return ErrorResponse("Vui lòng chọn file ảnh.");
-
-            var movie = await _movieService.UploadPosterAsync(id, file);
-            return OkResponse(movie, "Cập nhật ảnh Poster thành công.");
         }
     }
 }

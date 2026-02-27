@@ -51,14 +51,11 @@ namespace MovieStreaming.Infrastructure.Services
             string tempFilePath = string.Empty;
             try
             {
-                // 1. Lưu file tạm
                 tempFilePath = await SaveTempFile(dto.File);
 
-                // 2. Tạo folder output HLS
                 var movieFolderName = $"{Path.GetFileNameWithoutExtension(dto.File.FileName).Replace(" ", "_")}_{Guid.NewGuid():N}";
                 var outputFolder = Path.Combine(_env.WebRootPath, "movies", movieFolderName);
 
-                // 3. Convert sang HLS
                 var absoluteHlsPath = await _videoService.ConvertToHlsAsync(tempFilePath, outputFolder, cancellationToken);
                 var hlsUrl = GetUrlFromAbsolutePath(absoluteHlsPath);
 
@@ -68,6 +65,22 @@ namespace MovieStreaming.Infrastructure.Services
                     Description = dto.Description,
                     HlsUrl = hlsUrl
                 };
+
+                // Xử lý Poster ngay trong lúc Upload
+                if (dto.Poster != null && dto.Poster.Length > 0)
+                {
+                    var posterFolder = Path.Combine(_env.WebRootPath, "posters");
+                    if (!Directory.Exists(posterFolder)) Directory.CreateDirectory(posterFolder);
+
+                    var posterFileName = $"poster_{Guid.NewGuid():N}{Path.GetExtension(dto.Poster.FileName)}";
+                    var posterFilePath = Path.Combine(posterFolder, posterFileName);
+
+                    using (var stream = new FileStream(posterFilePath, FileMode.Create))
+                    {
+                        await dto.Poster.CopyToAsync(stream, cancellationToken);
+                    }
+                    movie.PosterUrl = $"/posters/{posterFileName}";
+                }
 
                 _context.Movies.Add(movie);
                 await _context.SaveChangesAsync();
@@ -95,38 +108,11 @@ namespace MovieStreaming.Infrastructure.Services
         {
             var movie = await GetMovieOrThrow(id);
 
-            // Xóa toàn bộ tài nguyên liên quan
             DeletePhysicalFile(movie.HlsUrl, isFolder: true);
             DeletePhysicalFile(movie.PosterUrl);
 
             _context.Movies.Remove(movie);
             await _context.SaveChangesAsync();
-        }
-
-        public async Task<Movie> UploadPosterAsync(int id, IFormFile file)
-        {
-            var movie = await GetMovieOrThrow(id);
-
-            // Xóa poster cũ nếu có
-            DeletePhysicalFile(movie.PosterUrl);
-
-            // Lưu poster mới
-            var fileName = $"poster_{id}_{Guid.NewGuid():N}{Path.GetExtension(file.FileName)}";
-            var relativePath = Path.Combine("posters", fileName);
-            var absolutePath = Path.Combine(_env.WebRootPath, relativePath);
-
-            var folder = Path.GetDirectoryName(absolutePath);
-            if (folder != null && !Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
-            using (var stream = new FileStream(absolutePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            movie.PosterUrl = "/" + relativePath.Replace("\\", "/");
-            await _context.SaveChangesAsync();
-
-            return movie;
         }
 
         #region Private Helpers
