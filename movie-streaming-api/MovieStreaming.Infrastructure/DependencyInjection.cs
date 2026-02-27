@@ -15,6 +15,7 @@ namespace MovieStreaming.Infrastructure
 				options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
 			services.AddScoped<IVideoService, VideoService>();
+			services.AddScoped<IMovieService, MovieService>();
 
 			return services;
 		}
