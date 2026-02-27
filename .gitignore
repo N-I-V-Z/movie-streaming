@@ -1,0 +1,87 @@
+# OS & General
+.DS_Store
+Thumbs.db
+*.pem
+*.log
+*.tmp
+
+# Dependencies
+# Ignored recursively in both projects
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing
+coverage/
+
+# --- Next.js (movie-streaming-client) ---
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+
+# --- Dotnet / Visual Studio (movie-streaming-api) ---
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+.vs/
+*.user
+*.suo
+*.userprefs
+*.sln.docstates
+*.patch
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+# Local database files
+*.mdf
+*.ldf
+*.ndf
+# Build logs
+[Bb]uild[Ll]og.*
+TestResult.xml
+# Scaffolding
+ScaffoldingReadMe.txt
+
+# --- IDEs ---
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sln.iml
+*.swp
+*.swo
+
+# --- Environment Files ---
+# Ignore all .env files in any directory
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# --- Project Specific Custom Rules ---
+
+# API Assets & Uploads
+# We ignore the actual movie files and temp uploads
+movie-streaming-api/MovieStreaming.Api/wwwroot/movies/*
+!movie-streaming-api/MovieStreaming.Api/wwwroot/movies/.gitkeep
+movie-streaming-api/MovieStreaming.Api/TempUploads/*
+!movie-streaming-api/MovieStreaming.Api/TempUploads/.gitkeep
+
+# Client Build Output
+movie-streaming-client/build/
+movie-streaming-client/dist/
