@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using MovieStreaming.Application.Common;
@@ -6,6 +6,9 @@ using MovieStreaming.Application.DTOs;
 using MovieStreaming.Application.Interfaces;
 using MovieStreaming.Domain.Entities;
 using MovieStreaming.Infrastructure.Data;
+
+using System.Net;
+using MovieStreaming.Application.Exceptions;
 
 namespace MovieStreaming.Infrastructure.Services
 {
@@ -119,7 +122,7 @@ namespace MovieStreaming.Infrastructure.Services
 
         private async Task<Movie> GetMovieOrThrow(int id)
         {
-            return await _context.Movies.FindAsync(id) ?? throw new KeyNotFoundException($"Không tìm thấy phim có ID: {id}");
+            return await _context.Movies.FindAsync(id) ?? throw new AppException($"Không tìm thấy phim có ID: {id}", HttpStatusCode.NotFound);
         }
 
         private async Task<string> SaveTempFile(IFormFile file)

@@ -1,3 +1,4 @@
+using MovieStreaming.Application.Exceptions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MovieStreaming.Application.Interfaces;
@@ -56,7 +57,7 @@ namespace MovieStreaming.Infrastructure.Services
                     {
                         var error = await errorTask;
                         _logger.LogError("Lỗi FFmpeg (Exit Code {ExitCode}): {Error}", process.ExitCode, error);
-                        throw new Exception("Quá trình xử lý video thất bại.");
+                        throw new AppException("Quá trình xử lý video thất bại. Vui lòng kiểm tra lại định dạng file.");
                     }
                 }
                 catch (OperationCanceledException)

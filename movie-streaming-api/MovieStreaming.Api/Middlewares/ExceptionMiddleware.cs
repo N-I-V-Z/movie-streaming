@@ -33,15 +33,23 @@ namespace MovieStreaming.Api.Middlewares
 		private async Task HandleExceptionAsync(HttpContext context, Exception exception)
 		{
 			context.Response.ContentType = "application/json";
-			context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-			// Nếu là môi trường Development, ta có thể trả về chi tiết StackTrace để debug
-			// Nếu là Production, chỉ trả về một câu thông báo chung chung cho bảo mật
+			var (statusCode, message) = exception switch
+			{
+				MovieStreaming.Application.Exceptions.AppException appEx => (appEx.StatusCode, appEx.Message),
+				KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
+				InvalidOperationException => (HttpStatusCode.BadRequest, exception.Message),
+				ArgumentException => (HttpStatusCode.BadRequest, exception.Message),
+				_ => (HttpStatusCode.InternalServerError, "Đã xảy ra lỗi hệ thống nghiêm trọng. Vui lòng thử lại sau.")
+			};
+
+			context.Response.StatusCode = (int)statusCode;
+
 			var response = _env.IsDevelopment()
 				? ApiResponse<object>.FailureResult(
 					exception.Message,
 					new List<string> { exception.StackTrace?.ToString() ?? string.Empty })
-				: ApiResponse<object>.FailureResult("Đã xảy ra lỗi hệ thống nghiêm trọng. Vui lòng thử lại sau.");
+				: ApiResponse<object>.FailureResult(message);
 
 			var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 			var json = JsonSerializer.Serialize(response, options);
